@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Project 2: Web Scraping and API access</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="project2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="project2_files/libs/quarto-html/quarto.js"></script>
+<script src="project2_files/libs/quarto-html/popper.min.js"></script>
+<script src="project2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="project2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="project2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="project2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="project2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="project2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="project2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Project 2: Web Scraping and API access</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="cell-2" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install beautifulsoup4</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>'pip' �����ڲ����ⲿ���Ҳ���ǿ����еĳ���
+���������ļ���</code></pre>
+</div>
+</div>
+<section id="part-1-explore-the-html-for-wikipedia-articles." class="level2">
+<h2 class="anchored" data-anchor-id="part-1-explore-the-html-for-wikipedia-articles.">Part 1: Explore the html for Wikipedia articles.</h2>
+<section id="a.-using-inspect-element-copy-the-html-code-for-a-table." class="level3">
+<h3 class="anchored" data-anchor-id="a.-using-inspect-element-copy-the-html-code-for-a-table.">A. Using inspect element, copy the html code for a table.</h3>
+</section>
+<section id="b.-using-inspect-element-find-the-html-syntax-for-a-link." class="level3">
+<h3 class="anchored" data-anchor-id="b.-using-inspect-element-find-the-html-syntax-for-a-link.">B. Using inspect element, find the html syntax for a link.</h3>
+</section>
+<section id="c.-using-inspect-element-find-the-html-syntax-for-linking-an-image" class="level3">
+<h3 class="anchored" data-anchor-id="c.-using-inspect-element-find-the-html-syntax-for-linking-an-image">C. Using inspect element, find the html syntax for linking an image</h3>
+</section>
+</section>
+<section id="part-2-explore-one-wikipedia-page-with-the-beautifulsoup-package" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-explore-one-wikipedia-page-with-the-beautifulsoup-package">Part 2: Explore one Wikipedia page with the beautifulsoup package</h2>
+<div id="cell-8" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bs4</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#save and print the text content of a page with all tags removed</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> requests.get(<span class="st">'https://en.wikipedia.org/wiki/Greater_China'</span>).text</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>text_m <span class="op">=</span> bs4.BeautifulSoup(text,<span class="st">'html.parser'</span>).get_text()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(text_m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+
+
+
+Greater China - Wikipedia
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jump to content
+
+
+
+
+
+
+
+Main menu
+
+
+
+
+
+Main menu
+move to sidebar
+hide
+
+
+
+        Navigation
+    
+
+
+Main pageContentsCurrent eventsRandom articleAbout WikipediaContact us
+
+
+
+
+
+        Contribute
+    
+
+
+HelpLearn to editCommunity portalRecent changesUpload file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Search
+
+
+
+
+
+
+
+
+
+
+
+Search
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Donate
+
+
+
+
+
+
+
+
+Appearance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Create account
+
+Log in
+
+
+
+
+
+
+
+
+Personal tools
+
+
+
+
+
+ Create account Log in
+
+
+
+
+
+        Pages for logged out editors learn more
+
+
+
+ContributionsTalk
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Contents
+move to sidebar
+hide
+
+
+
+
+(Top)
+
+
+
+
+
+1
+Usage
+
+
+
+
+
+
+
+
+2
+History
+
+
+
+
+
+
+
+
+3
+See also
+
+
+
+
+
+
+
+
+4
+References
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Toggle the table of contents
+
+
+
+
+
+
+
+Greater China
+
+
+
+32 languages
+
+
+
+
+العربيةAzərbaycancaবাংলাČeštinaChiShonaDanskDeutschΕλληνικάEspañolفارسیFrançais한국어IgboBahasa IndonesiaItalianoمصرىNederlands日本語PortuguêsРусскийSimple EnglishSoomaaligaکوردیСрпски / srpskiதமிழ்TürkçeУкраїнськаTiếng Việt吴语粵語Zazaki中文
+
+Edit links
+
+
+
+
+
+
+
+
+
+
+
+ArticleTalk
+
+
+
+
+
+English
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ReadEditView history
+
+
+
+
+
+
+
+Tools
+
+
+
+
+
+Tools
+move to sidebar
+hide
+
+
+
+        Actions
+    
+
+
+ReadEditView history
+
+
+
+
+
+        General
+    
+
+
+What links hereRelated changesUpload fileSpecial pagesPermanent linkPage informationCite this pageGet shortened URLDownload QR codeWikidata item
+
+
+
+
+
+        Print/export
+    
+
+
+Download as PDFPrintable version
+
+
+
+
+
+        In other projects
+    
+
+
+Wikimedia Commons
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Appearance
+move to sidebar
+hide
+
+
+
+
+
+
+
+
+
+
+From Wikipedia, the free encyclopedia
+
+
+Region with cultural ties to Chinese people
+
+
+Greater ChinaChinese nameTraditional&nbsp;Chinese大中華Simplified&nbsp;Chinese大中华TranscriptionsStandard MandarinHanyu PinyinDà ZhōnghuáBopomofoㄉㄚˋ&nbsp;ㄓㄨㄥˉ&nbsp;ㄏㄨㄚˊWade–GilesTa4 Chung1-hua2IPA[tâ.ʈʂʊ́ŋ.xwâ]Yue: CantoneseJyutpingDaai6 zung1 waa4IPA[taj˨&nbsp;tsʊŋ˥&nbsp;wa˩]Southern MinHokkien POJTāi Tiong-hôaVietnamese nameVietnamese alphabetĐại Trung HoaKorean nameHangul중화권Hanja中華圈Japanese nameKanji中華圏TranscriptionsRevised HepburnChūkaken
+
+Greater China is an ethno-linguistic term describing a geographical area sharing cultural and economic ties with the Chinese people.[1][2][3][4] The notion contains a "great deal of ambiguity in its geographical coverage and politico-economic implications",[5] because some users use it to refer to "the commercial ties among ethnic Chinese, whereas others are more interested in cultural interactions, and still others in the prospects for political reunification"[6] but usually refers to an area encompassing the People’s Republic of China (mainland China, Hong Kong, Macau) and the Republic of China (known as Taiwan), places where the majority population is culturally Chinese.[7][8][9] Some analysts may also include places which have predominantly ethnic Chinese population such as Singapore. The term may sometimes be generalised to encompass "linkages among regional Chinese communities".[10][11]
+The term's usage is contested; some observers in Taiwan characterise the term as harmful or a conflation of distinct polities and markets,[4] while the Chinese government has avoided it, either to allay fears of its economic expansionism or to avoid suggesting Taiwan (known as the Republic of China) and the People's Republic of China are on equal footing. Australian sinologist Wang Gungwu has characterised the concept as a "myth", and "wrong" if applied to overseas Chinese communities.[12]
+
+
+Usage[edit]
+Multinational corporations frequently use the term when naming their headquarters in the region. For example, Procter &amp; Gamble uses the term to name its regional headquarters in Guangzhou that also operates in Hong Kong and Taipei;[13] Apple Inc. uses it when referring to its regional headquarters in Shanghai.[14][15]
+The term is often used to avoid invoking sensitivities over the political status of Taiwan.[16] Contrastingly, it has been used in reference to Chinese irredentism in nationalist contexts, such as the notion that China should reclaim its "lost territories" to create a Greater China.[17][18]
+
+History[edit]
+A map from the 1944 American propaganda film The Battle of China, showing the territories of the Republic of China: China proper, Manchuria, Mongolia, Sinkiang, and Tibet.
+Depiction of territories claimed by the Republic of China on a monument to Chiang Kai-shek in Wuqiu
+The term has been used for a long time, but with differing scopes and connotations.
+During the 1930s, George Cressey, an American academic who did work for the US State Department throughout his career, used the term to refer to the entirety of the territory controlled by the Qing dynasty, as opposed to China proper.[19] Usage by the United States on government maps in the 1940s as a political term included territories claimed by the Republic of China that were part of the previous Qing Empire, or geographically to refer to topographical features associated with China that may or may not have lain entirely within Chinese political borders.[19]
+The concept began to appear again in Chinese-language sources in the late 1970s, referring to the growing commercial ties between the mainland and Hong Kong, with the possibility of extending these to Taiwan, with perhaps the first such reference being in a Taiwanese journal Changqiao in 1979.[19]
+The English term subsequently re-emerged in the 1980s to refer to the growing economic ties between the regions as well as the possibility of political unification.[19] It is not an institutionalized entity such as the EU, ASEAN, or AU. The concept is a generalization to group several markets seen to be closely linked economically and does not imply sovereignty.[16] The concept does not always include Taiwan, for instance Cisco uses "Greater China and Taiwan" to refer to the market.[20]
+
+See also[edit]
+
+Adoption of Chinese literary culture
+Bamboo network
+Chinese expansionism
+Chinese imperialism
+Chinese irredentism
+Chinese nationalism
+Sinosphere
+Nanyang
+History of China
+List of tributaries of China
+Nine-dash line
+Sinocentrism
+Sinophone
+Greater Britain
+
+References[edit]
+
+
+^ "Pact row could harm Greater China economic integration: ANZ". Focus Taiwan. 2 April 2014. Retrieved 6 November 2018.
+
+^ MTV Channels In Southeast Asia and Greater China To Exclusively Air The Youth Inaugural BallArchived 22 May 2009 at the Wayback Machine – MTV Asia
+
+^ 1 June 2008, Universal Music Group realigns presence in Greater China Archived 14 December 2017 at the Wayback Machine, Television Asia
+
+^ a b Lee, James (6 August 2021). "'Greater China' is a harmful myth". Taipei Times. Retrieved 30 October 2023.
+
+^ Huang, Jianli (2010). "Conceptualizing Chinese Migration and Chinese Overseas: The Contribution of Wang Gungwu". Journal of Chinese Overseas: 12.
+
+^ Harding, Henry (1993). "The concept of "Greater China": Themes, variations and reservations". The China Quarterly. 136: 660–686. doi:10.1017/S030574100003229X. S2CID&nbsp;154522700.
+
+^ William, Yat Wai Lo (2016). "The concept of greater China in higher education: adoptions, dynamics and implications". Comparative Education. 52: 26–43. doi:10.1080/03050068.2015.1125613. This term can be narrowly defined as referring to a geographic concept that consists of the People's Republic of China, the Republic of China, the Hong Kong Special Administrative Region and the Macau Special Administrative Region, where ethnic Chinese comprise the majority of the population. In this sense, the term is used to describe the ethnic and the associated political, economic and cultural ties among these Chinese societies (Harding 1993; Cheung 2013).
+
+^ "Apple overtakes Lenovo in China sales". Financial Times. 18 August 2011. Archived from the original on 27 November 2011. Retrieved 19 November 2011.
+
+^ 4月29日日间新闻摘要（大中华区） [29 April: Daily news summary (Greater China)]. Reuters (in Chinese). 29 April 2019.
+
+^ William, Yat Wai Lo (2016). "The concept of greater China in higher education: adoptions, dynamics and implications". Comparative Education. 52: 26–43. doi:10.1080/03050068.2015.1125613. However, some analysts see the Greater China concept as a way to summarise 'the linkages among the fair-flung international Chinese community', thereby incorporating Singapore and overseas Chinese communities in their usage of the term (Harding 1993, 660; also see Wang 1993).
+
+^ Harding, Harry (December 1993). "The Concept of "Greater China": Themes, Variations and Reservations*". The China Quarterly. 136: 660–686. doi:10.1017/S030574100003229X. ISSN&nbsp;1468-2648. S2CID&nbsp;154522700.
+
+^ He, Henry Yuhuai (2001). "Greater China" 大中华. Dictionary of the Political Thought of the People's Republic of China. M. E. Sharpe. pp.&nbsp;47–48. ISBN&nbsp;978-0-765-60569-6.
+
+^ "P&amp;G in Greater China". www.pgcareers.com. Retrieved 16 March 2020.
+
+^ "Isabel Ge Mahe named Apple's managing director of Greater China". Apple Newsroom. Retrieved 16 March 2020.
+
+^ Dowell, Andrew; Mickle, Tripp (14 March 2020). "Apple Closes All Its Stores Outside China Over Coronavirus". Wall Street Journal. Retrieved 16 March 2020.
+
+^ a b Aretz, Tilman (2007). The greater China factbook. Taipei: Taiwan Elite Press. ISBN&nbsp;978-986-7762-97-9. OCLC&nbsp;264977502. Archived from the original on 31 January 2009.
+
+^ Tseng, Hui-Yi (2017). Revolution, State Succession, International Treaties and the Diaoyu/Diaoyutai Islands. Cambridge Scholars Publishing. p.&nbsp;66. ISBN&nbsp;9781443893688.
+
+^ Kim, Samuel S. (1979). China, the United Nations, and World Order. Princeton University Press. p.&nbsp;43. ISBN&nbsp;9780691100760.
+
+^ a b c d Harding, Harry (December 1993). "The Concept of 'Greater China': Themes, Variations and Reservations". The China Quarterly. 136 (136, Special Issue: Greater China): 660–686. doi:10.1017/S030574100003229X. S2CID&nbsp;154522700.
+
+^ "The Rundown: Pegatron's Tesla Ambitions, Tech Sector Bonuses, and Cisco's New Software Center". topics.amcham.com.tw. Taiwan Topics. 18 January 2021. Retrieved 18 January 2021.
+
+
+vte Cross-strait relations Diplomatic posts
+Hong Kong Economic, Trade and Cultural Office (Taiwan)
+Taipei Economic and Cultural Office in Hong Kong
+Macau Economic and Cultural Office (Taiwan)
+Taipei Economic and Cultural Office in Macau
+Diplomacy
+Opening of the South-North route
+Restoration of Taiwan strait shipping
+Kinmen Agreement
+Wang–Koo summit
+Cross-strait charter
+2004 Taiwanese cross-strait relations referendum
+May 17 Statement
+2005 Pan–Blue visits to mainland China
+Cross-strait high-level talks
+First Chen–Chiang summit
+Second Chen–Chiang summit
+Fourth Chen–Chiang summit
+Fifth Chen–Chiang summit
+Sixth Chen–Chiang summit
+Seventh Chen–Chiang summit
+Tuan Tuan and Yuan Yuan
+Economic Cooperation Framework Agreement
+Cross-Strait CEO Summit
+Cross-Strait Service Trade Agreement
+Jinjiang–Kinmen Pipeline
+2014 Wang–Zhang meetings
+2015 Xi–Chu meeting
+Ma–Xi meeting
+Straits Forum
+Shanghai-Taipei City Forum
+Second Ma–Xi meeting
+Conflicts
+Chinese Civil War
+Second Kuomintang-Communist Civil War
+Retreat of the government of the Republic of China to Taiwan
+Guanbi policy
+First Taiwan Strait Crisis
+Project National Glory
+Battle of Dong-Yin
+Battle of Dongshan
+Battle of East Chongwu
+Second Taiwan Strait Crisis
+Third Taiwan Strait Crisis
+Senkaku Islands
+Dispute
+Incidents
+Capture of the Tuapse
+Kashmir Princess
+United Nations General Assembly Resolution 2758
+Joint Communiqué on the Establishment of Diplomatic Relations
+CAAC Flight 296
+China Airlines Flight 334
+1987 Lieyu massacre
+Min Ping Yu No. 5540 incident
+Min Ping Yu No. 5202
+1990 Guangzhou Baiyun airport collisions
+Qiandao Lake incident
+China Airlines Flight 611
+Sunflower Student Movement
+Braga incident
+Anti-Black Box Curriculum Movement
+Wang Liqiang
+Freedom pineapples
+2021 Solomon Islands unrest
+2022 Chinese military exercises around Taiwan
+2023 Chinese military exercises around Taiwan
+2024 Kinmen Chinese motorboat capsizing incident
+Legislation
+Cross-Strait Act
+Proposed National Unification Promotion Law
+Anti-Secession Law
+Anti-Infiltration Act
+Organizations
+All-China Federation of Taiwan Compatriots
+Alumni Association of Huangpu Military Academy
+Association for Relations Across the Taiwan Straits
+Association for Tourism Exchange Across the Taiwan Straits
+Central Leading Group for Taiwan Affairs
+China Council for the Promotion of Peaceful National Reunification
+Cross-Straits Common Market Foundation
+Cross-Strait Economic, Trade and Culture Forum
+Cross-Strait Peace Forum
+Grand Alliance for China's Reunification under the Three Principles of the People
+Lienchiang Cross-Strait Matters Forum
+Mainland Affairs Council
+National Unification Council
+Straits Exchange Foundation
+Taiwan Affairs Office
+Taiwan Competitiveness Forum
+Taiwan Strait Tourism Association
+Concepts
+1992 Consensus
+China Circle
+Chinese unification
+Chinese nationalism
+Chinese irredentism
+Chinese Taipei
+Cross-Strait Economic Zone
+Dang Guo
+Four Noes and One Without
+Greater China
+Han chauvinism
+One China
+One-China policy
+One Country on Each Side
+One country, two systems
+Propaganda in China
+Cross-strait propaganda
+Republic of China on Taiwan
+Self-determination
+Socialist ideology of the Kuomintang
+Socialism with Chinese characteristics
+Special non-state-to-state relations
+Six Assurances
+Taiwan, China
+Two Chinas
+Three Noes
+Three Links
+Taiwan consensus
+Taiwan independence movement
+Theory of the Undetermined Status of Taiwan
+United front in Taiwan
+Under the Roof of One China
+Xi Jinping Thought
+Zhonghua minzu
+Related
+Fujian–Taiwan relationship
+Hong Kong–Taiwan relations
+Hong Kong–Taiwan Economic and Cultural Co-operation and Promotion Council
+Taiwan–Hong Kong Economic and Cultural Co-operation Council
+Hong Kong and Kowloon Trades Union Council
+Pro-ROC camp
+Chinese Travel Document
+Taiwan Entry Permit
+Mainland Travel Permit for Taiwan Residents
+Cross-strait language database
+ECFA Debate
+HMS Aurora (12)
+China and the United Nations
+China and the World Bank
+Chinese intelligence activity abroad
+Chinese information operations and information warfare
+Chinese Soviet Republic
+Freedom of religion in China
+Foreign relations of China
+Timeline of diplomatic relations with China
+Political status of Taiwan
+Foreign relations of Taiwan
+Opinion polling on Taiwanese identity
+Timeline of diplomatic relations with Taiwan
+Geostrategy in Taiwan
+Anti-Communist Hero
+Milk Tea Alliance
+Taishang
+G3 Beijing–Taipei Expressway
+G99 Taiwan Ring Expressway
+China National Highway 228 (Taiwan)
+Mongolian and Tibetan Affairs Commission
+Tibet Religious Foundation of His Holiness the Dalai Lama
+The World Turned Upside Down
+Go and Reclaim the Mainland
+
+ Category:Cross-strait relations
+
+vtePan-nationalist conceptsIdeas
+Atlanticism
+Afghan-Pakistani unionism
+Austro-Slavism
+Berberism
+Bulgarian-Romanian unionism
+Canada-USA unionism
+Central-americanism
+Czechoslovakism
+Enosis
+Estonian-Finnish unionism
+Eurasianism
+Fertile Crescent unionism
+Gaucho traditionalism&nbsp;[pt]
+Greek-Yugoslavian unionism
+Hungarian-Romanian unionism
+Gran Colombia unionism
+Indian-Pakistani Unionism
+Israeli-Palestinian unionism
+Latinoamericanism&nbsp;[es]
+Hellenoturkism
+Hispanoamericanism&nbsp;[es]
+League of East European States
+Neo-Ottomanism
+Netherlands-Indonesian unionism
+One China
+Romanian-moldovan unionism
+Pan-Africanism
+Union of African States
+Mali Federation
+Sahel-Benin Union
+Pan-Americanism
+Pan-Andinism&nbsp;[es]
+Ecuadorian-Peruvian-Bolivian unionism
+Peruvian-Bolivian unionism&nbsp;[es]
+Pan-Arabism
+Hashemite unionism
+United Arab States
+United Arab Republic
+Federation of Arab Republics
+Libyan-Syrian Union
+Arab Islamic Republic
+Jordania-Palestine unionism
+Union of Arab Republics (1972)
+Iraq-Kuwait unionism
+Pan-Asianism
+Pan-Caribbean
+Pan-Caucasianism
+Pan-Celticism
+Pan-Finnicism
+Pan-Germanism
+Pan-Europeanism
+European unionism
+Pan-European nationalism
+Panhispanism
+Pan-Iberism
+Pan-Indianism
+Pan-Iranism
+Pan-Islamism
+Pan-Latinism
+Mediterraneanism
+Pan-Mongolism
+Pan-Oceanianism
+Polish-Czechoslovak unionism
+Reintegrationism
+Saint Martin unionism
+Scandinavism
+Pan-Serbism
+Pan-Slavism
+Pan-Tatarism&nbsp;[ru; tt]
+Pan-Turkism
+Rattachism
+Rhodesia-Nyasaland unionism
+Soviet reunificationism
+Switzerland expansion
+Turanism
+Hungarian Turanism
+Yugoslavism
+Territorialconcepts
+Abya Yala
+African federation
+Anglosphere
+Anglo-American unificationism
+Antillean Confederation
+Arab Union
+Arab world
+Assyria
+Balkan Federation
+Baltoscandia
+Basque Country
+British unionism
+Imperial Federation
+Cascadia movement
+Catalan Countries
+Celtic union
+Cossackia
+Danubian Confederation&nbsp;[de]
+East African Federation
+Federalisation of the European Union
+Greater Cambodia
+Caribbean Antilles
+West Indies Federation
+Franco-British Union
+Gran Colombia
+Greater Albania
+Unification of Albania and Kosovo
+Greater Argentina
+Greater Bangladesh
+Greater Bosnia
+Greater Bulgaria
+Greater China
+Greater Croatia
+Eritrean national identity nationalism
+Ethiopian national identity nationalism
+Greater Finland
+Galicia irredenta
+Greater Hungary
+Greater India
+Greater Indonesia
+Greater Iran
+Greater Iraq
+Greater Israel
+Greater Italy
+Greater Mauritania
+Greater Mexico
+Greater Moldova
+Greater Morocco
+Greater Nepal
+Greater Netherlands
+Greater Norway
+Greater Palestine
+Greater Poland
+Greater Portugal&nbsp;[pt]
+Greater Romania
+Greater Russia
+Greater Samoa
+Greater Serbia
+Greater Somalia
+Greater Spain
+Greater Syria
+Greater Tamil Nadu
+Great Timor
+Greater Ukraine
+Greater Vietnam
+Greater Yemen
+Greater Yugoslavia
+Hispanidad
+Indosphere
+Intermarium
+United States of Poland
+North American Union
+Latin Africa
+Lusosphere
+Malay world
+Maphilindo
+Megali Idea (Greece)
+Misak-ı Millî (Turkey)
+Kurdistan
+Occitania
+Padanian nationalism
+Pashtunistan
+Patria Grande
+Polynesian confederation
+Russian world
+Sahel Confederation
+Senegambia Confederation
+Sinosphere
+Tamazgha
+Triune Russia
+Union State
+United Armenia
+United Ireland
+United Macedonia
+Upper Peru
+Whole Azerbaijan
+Turan
+Zambesia
+Pan-ethnicgroups
+Latinos, Hispanic peoples
+Habesha peoples
+
+
+
+
+
+Retrieved from "https://en.wikipedia.org/w/index.php?title=Greater_China&amp;oldid=1245180759"
+Categories: Chinese nationalismCountry classificationsCross-strait relationsCultural regionsGeography of ChinaHistorical regionsHidden categories: Webarchive template wayback linksCS1 uses Chinese-language script (zh)CS1 Chinese-language sources (zh)Articles with short descriptionShort description is different from WikidataUse dmy dates from January 2022Articles containing Chinese-language textArticles containing Vietnamese-language textArticles containing Korean-language textArticles containing Japanese-language text
+
+
+
+
+
+
+ This page was last edited on 11 September 2024, at 14:12&nbsp;(UTC).
+Text is available under the Creative Commons Attribution-ShareAlike License 4.0;
+additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+
+
+Privacy policy
+About Wikipedia
+Disclaimers
+Contact Wikipedia
+Code of Conduct
+Developers
+Statistics
+Cookie statement
+Mobile view
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</code></pre>
+</div>
+</div>
+<div id="cell-10" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#download an image with beautifulsoup and save it in this repository</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> bs4.BeautifulSoup(text, <span class="st">'html.parser'</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>image_tag <span class="op">=</span> soup.find(<span class="st">'img'</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>image_url <span class="op">=</span> <span class="st">'https:'</span> <span class="op">+</span> image_tag[<span class="st">'src'</span>]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>image_response <span class="op">=</span> requests.get(image_url)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">'python_logo.svg'</span>, <span class="st">'wb'</span>) <span class="im">as</span> <span class="bu">file</span>:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">file</span>.write(image_response.content)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<div class="ansi-escaped-output">
+<pre><span class="ansi-red-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg ansi-bold">InvalidURL</span>                                Traceback (most recent call last)
+Cell <span class="ansi-green-fg ansi-bold">In[15], line 5</span>
+<span class="ansi-green-fg">      3</span> image_tag <span style="color:rgb(98,98,98)">=</span> soup<span style="color:rgb(98,98,98)">.</span>find(<span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">img</span><span style="color:rgb(175,0,0)">'</span>)
+<span class="ansi-green-fg">      4</span> image_url <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">https:</span><span style="color:rgb(175,0,0)">'</span> <span style="color:rgb(98,98,98)">+</span> image_tag[<span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">src</span><span style="color:rgb(175,0,0)">'</span>]
+<span class="ansi-green-fg ansi-bold">----&gt; 5</span> image_response <span style="color:rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">requests</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">get</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">image_url</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">      6</span> <span style="font-weight:bold;color:rgb(0,135,0)">with</span> <span style="color:rgb(0,135,0)">open</span>(<span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">python_logo.svg</span><span style="color:rgb(175,0,0)">'</span>, <span style="color:rgb(175,0,0)">'</span><span style="color:rgb(175,0,0)">wb</span><span style="color:rgb(175,0,0)">'</span>) <span style="font-weight:bold;color:rgb(0,135,0)">as</span> file:
+<span class="ansi-green-fg">      7</span>     file<span style="color:rgb(98,98,98)">.</span>write(image_response<span style="color:rgb(98,98,98)">.</span>content)
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py:73</span>, in <span class="ansi-cyan-fg">get</span><span class="ansi-blue-fg ansi-bold">(url, params, **kwargs)</span>
+<span class="ansi-green-fg">     62</span> <span style="font-weight:bold;color:rgb(0,135,0)">def</span> <span style="color:rgb(0,0,255)">get</span>(url, params<span style="color:rgb(98,98,98)">=</span><span style="font-weight:bold;color:rgb(0,135,0)">None</span>, <span style="color:rgb(98,98,98)">*</span><span style="color:rgb(98,98,98)">*</span>kwargs):
+<span class="ansi-green-fg">     63</span> <span style="color:rgb(188,188,188)">    </span><span style="color:rgb(175,0,0)">r</span><span style="font-style:italic;color:rgb(175,0,0)">"""Sends a GET request.</span>
+<span class="ansi-green-fg">     64</span> 
+<span class="ansi-green-fg">     65</span> <span style="font-style:italic;color:rgb(175,0,0)">    :param url: URL for the new :class:`Request` object.</span>
+<span class="ansi-green-fg ansi-bold">   (...)</span>
+<span class="ansi-green-fg">     70</span> <span style="font-style:italic;color:rgb(175,0,0)">    :rtype: requests.Response</span>
+<span class="ansi-green-fg">     71</span> <span style="font-style:italic;color:rgb(175,0,0)">    """</span>
+<span class="ansi-green-fg ansi-bold">---&gt; 73</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">request</span><span class="ansi-yellow-bg">(</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">get</span><span style="color:rgb(175,0,0)" class="ansi-yellow-bg">"</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">params</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">params</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\api.py:59</span>, in <span class="ansi-cyan-fg">request</span><span class="ansi-blue-fg ansi-bold">(method, url, **kwargs)</span>
+<span class="ansi-green-fg">     55</span> <span style="font-style:italic;color:rgb(95,135,135)"># By using the 'with' statement we are sure the session is closed, thus we</span>
+<span class="ansi-green-fg">     56</span> <span style="font-style:italic;color:rgb(95,135,135)"># avoid leaving sockets open which can trigger a ResourceWarning in some</span>
+<span class="ansi-green-fg">     57</span> <span style="font-style:italic;color:rgb(95,135,135)"># cases, and look like a memory leak in others.</span>
+<span class="ansi-green-fg">     58</span> <span style="font-weight:bold;color:rgb(0,135,0)">with</span> sessions<span style="color:rgb(98,98,98)">.</span>Session() <span style="font-weight:bold;color:rgb(0,135,0)">as</span> session:
+<span class="ansi-green-fg ansi-bold">---&gt; 59</span>     <span style="font-weight:bold;color:rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">session</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">request</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">method</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">method</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">url</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py:575</span>, in <span class="ansi-cyan-fg">Session.request</span><span class="ansi-blue-fg ansi-bold">(self, method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)</span>
+<span class="ansi-green-fg">    562</span> <span style="font-style:italic;color:rgb(95,135,135)"># Create the Request.</span>
+<span class="ansi-green-fg">    563</span> req <span style="color:rgb(98,98,98)">=</span> Request(
+<span class="ansi-green-fg">    564</span>     method<span style="color:rgb(98,98,98)">=</span>method<span style="color:rgb(98,98,98)">.</span>upper(),
+<span class="ansi-green-fg">    565</span>     url<span style="color:rgb(98,98,98)">=</span>url,
+<span class="ansi-green-fg ansi-bold">   (...)</span>
+<span class="ansi-green-fg">    573</span>     hooks<span style="color:rgb(98,98,98)">=</span>hooks,
+<span class="ansi-green-fg">    574</span> )
+<span class="ansi-green-fg ansi-bold">--&gt; 575</span> prep <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">prepare_request</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">req</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    577</span> proxies <span style="color:rgb(98,98,98)">=</span> proxies <span style="font-weight:bold;color:rgb(175,0,255)">or</span> {}
+<span class="ansi-green-fg">    579</span> settings <span style="color:rgb(98,98,98)">=</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>merge_environment_settings(
+<span class="ansi-green-fg">    580</span>     prep<span style="color:rgb(98,98,98)">.</span>url, proxies, stream, verify, cert
+<span class="ansi-green-fg">    581</span> )
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\sessions.py:484</span>, in <span class="ansi-cyan-fg">Session.prepare_request</span><span class="ansi-blue-fg ansi-bold">(self, request)</span>
+<span class="ansi-green-fg">    481</span>     auth <span style="color:rgb(98,98,98)">=</span> get_netrc_auth(request<span style="color:rgb(98,98,98)">.</span>url)
+<span class="ansi-green-fg">    483</span> p <span style="color:rgb(98,98,98)">=</span> PreparedRequest()
+<span class="ansi-green-fg ansi-bold">--&gt; 484</span> <span class="ansi-yellow-bg">p</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">prepare</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-fg">    485</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">method</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">method</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">upper</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    486</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">url</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    487</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">files</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">files</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    488</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">data</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">data</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    489</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">json</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">json</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    490</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">headers</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">merge_setting</span><span class="ansi-yellow-bg">(</span>
+<span class="ansi-green-fg">    491</span> <span class="ansi-yellow-bg">        </span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">headers</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">headers</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">dict_class</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">CaseInsensitiveDict</span>
+<span class="ansi-green-fg">    492</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    493</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">params</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">merge_setting</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">params</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">params</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    494</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">auth</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">merge_setting</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">auth</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">auth</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    495</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">cookies</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">merged_cookies</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    496</span> <span class="ansi-yellow-bg">    </span><span class="ansi-yellow-bg">hooks</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">=</span><span class="ansi-yellow-bg">merge_hooks</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">request</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">hooks</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">hooks</span><span class="ansi-yellow-bg">)</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-fg">    497</span> <span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    498</span> <span style="font-weight:bold;color:rgb(0,135,0)">return</span> p
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py:367</span>, in <span class="ansi-cyan-fg">PreparedRequest.prepare</span><span class="ansi-blue-fg ansi-bold">(self, method, url, headers, files, data, params, auth, cookies, hooks, json)</span>
+<span class="ansi-green-fg">    364</span> <span style="font-style:italic;color:rgb(175,0,0)">"""Prepares the entire request with the given parameters."""</span>
+<span class="ansi-green-fg">    366</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>prepare_method(method)
+<span class="ansi-green-fg ansi-bold">--&gt; 367</span> <span style="color:rgb(0,135,0)" class="ansi-yellow-bg">self</span><span style="color:rgb(98,98,98)" class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">prepare_url</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">url</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">params</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">    368</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>prepare_headers(headers)
+<span class="ansi-green-fg">    369</span> <span style="color:rgb(0,135,0)">self</span><span style="color:rgb(98,98,98)">.</span>prepare_cookies(cookies)
+
+File <span class="ansi-green-fg ansi-bold">c:\Users\24366\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py:444</span>, in <span class="ansi-cyan-fg">PreparedRequest.prepare_url</span><span class="ansi-blue-fg ansi-bold">(self, url, params)</span>
+<span class="ansi-green-fg">    438</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> MissingSchema(
+<span class="ansi-green-fg">    439</span>         <span style="color:rgb(175,0,0)">f</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">Invalid URL </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>url<span style="font-weight:bold;color:rgb(175,95,135)">!r}</span><span style="color:rgb(175,0,0)">: No scheme supplied. </span><span style="color:rgb(175,0,0)">"</span>
+<span class="ansi-green-fg">    440</span>         <span style="color:rgb(175,0,0)">f</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">Perhaps you meant https://</span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>url<span style="font-weight:bold;color:rgb(175,95,135)">}</span><span style="color:rgb(175,0,0)">?</span><span style="color:rgb(175,0,0)">"</span>
+<span class="ansi-green-fg">    441</span>     )
+<span class="ansi-green-fg">    443</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> host:
+<span class="ansi-green-fg ansi-bold">--&gt; 444</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> InvalidURL(<span style="color:rgb(175,0,0)">f</span><span style="color:rgb(175,0,0)">"</span><span style="color:rgb(175,0,0)">Invalid URL </span><span style="font-weight:bold;color:rgb(175,95,135)">{</span>url<span style="font-weight:bold;color:rgb(175,95,135)">!r}</span><span style="color:rgb(175,0,0)">: No host supplied</span><span style="color:rgb(175,0,0)">"</span>)
+<span class="ansi-green-fg">    446</span> <span style="font-style:italic;color:rgb(95,135,135)"># In general, we want to try IDNA encoding the hostname if the string contains</span>
+<span class="ansi-green-fg">    447</span> <span style="font-style:italic;color:rgb(95,135,135)"># non-ASCII characters. This allows users to automatically get the correct IDNA</span>
+<span class="ansi-green-fg">    448</span> <span style="font-style:italic;color:rgb(95,135,135)"># behaviour. For strings containing only ASCII characters, we need to also verify</span>
+<span class="ansi-green-fg">    449</span> <span style="font-style:italic;color:rgb(95,135,135)"># it doesn't start with a wildcard (*), before allowing the unencoded hostname.</span>
+<span class="ansi-green-fg">    450</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(175,0,255)">not</span> unicode_is_ascii(host):
+
+<span class="ansi-red-fg ansi-bold">InvalidURL</span>: Invalid URL 'https:/static/images/icons/wikipedia.png': No host supplied</pre>
+</div>
+</div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#find all the links in a page with beautifulsoup</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#print the first 100 characters of ten of these links</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> soup.find_all(<span class="st">'a'</span>, href<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links[:<span class="dv">10</span>]:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(link[<span class="st">'href'</span>][:<span class="dv">100</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#bodyContent
+/wiki/Main_Page
+/wiki/Wikipedia:Contents
+/wiki/Portal:Current_events
+/wiki/Special:Random
+/wiki/Wikipedia:About
+//en.wikipedia.org/wiki/Wikipedia:Contact_us
+/wiki/Help:Contents
+/wiki/Help:Introduction
+/wiki/Wikipedia:Community_portal</code></pre>
+</div>
+</div>
+</section>
+<section id="part-3-downloading-scripts" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-downloading-scripts">Part 3: Downloading scripts</h2>
+<div id="cell-13" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>scripts<span class="op">=</span>pd.read_csv(<span class="st">'pudding_data.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>scripts</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">imdb_id</th>
+<th data-quarto-table-cell-role="th">script_id</th>
+<th data-quarto-table-cell-role="th">title</th>
+<th data-quarto-table-cell-role="th">year</th>
+<th data-quarto-table-cell-role="th">gross (inflation-adjusted)</th>
+<th data-quarto-table-cell-role="th">link</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>tt0019777</td>
+<td>4031</td>
+<td>The Cocoanuts</td>
+<td>1929</td>
+<td>NaN</td>
+<td>http://www.pages.drexel.edu/~ina22/splaylib/Sc...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>tt0021884</td>
+<td>8521</td>
+<td>Frankenstein</td>
+<td>1931</td>
+<td>298.0</td>
+<td>Frankenstein (Florey &amp; Fort) [1931-5-23] [Scan...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>tt0022054</td>
+<td>1086</td>
+<td>The Last Flight</td>
+<td>1931</td>
+<td>NaN</td>
+<td>film_20100519/all_imsdb_05_19_10/Last-Flight,-...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>tt0022626</td>
+<td>1631</td>
+<td>American Madness</td>
+<td>1932</td>
+<td>NaN</td>
+<td>http://www.imsdb.com/Movie Scripts/American Ma...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>tt0022958</td>
+<td>2438</td>
+<td>Grand Hotel</td>
+<td>1932</td>
+<td>NaN</td>
+<td>http://www.imsdb.com/Movie Scripts/Grand Hotel...</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1995</td>
+<td>tt3733778</td>
+<td>8533</td>
+<td>Pay the Ghost</td>
+<td>2015</td>
+<td>NaN</td>
+<td>Pay The Ghost (Dan Kay, 9-1-09).pdf</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1996</td>
+<td>tt3808342</td>
+<td>5499</td>
+<td>Son of Saul</td>
+<td>2015</td>
+<td>0.0</td>
+<td>http://gointothestory.blcklst.com/wp-content/u...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1997</td>
+<td>tt3850214</td>
+<td>8056</td>
+<td>Dope</td>
+<td>2015</td>
+<td>18.0</td>
+<td>Dope (2013.10.31) [Digital].pdf</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1998</td>
+<td>tt3859076</td>
+<td>5507</td>
+<td>Truth</td>
+<td>2015</td>
+<td>2.0</td>
+<td>http://gointothestory.blcklst.com/wp-content/u...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1999</td>
+<td>tt4270516</td>
+<td>5410</td>
+<td>Grandma</td>
+<td>2015</td>
+<td>7.0</td>
+<td>http://gointothestory.blcklst.com/wp-content/u...</td>
+</tr>
+</tbody>
+</table>
+
+<p>2000 rows × 6 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-15" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>text_content <span class="op">=</span> []</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> scripts[<span class="st">'link'</span>]:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        response <span class="op">=</span> requests.get(link)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        soup <span class="op">=</span> BeautifulSoup(response.content, <span class="st">'html.parser'</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        text <span class="op">=</span> soup.get_text()[:<span class="dv">1000</span>]  <span class="co"># Extract first 1000 characters of text</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        text_content.append(text)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        text_content.append(<span class="st">'Error downloading content'</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a new column to the DataFrame with the downloaded text</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>scripts[<span class="st">'script_text'</span>] <span class="op">=</span> text_content</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-16" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#add a new column to the df with the text downloaded</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#save this new dataframe as "pudding_texts.csv"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>scripts.to_csv(<span class="st">'pudding_texts.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="part-4-tmdb-database" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-tmdb-database">Part 4: TMDB database</h2>
+<section id="browse-the-documentation-at-httpsdeveloper.themoviedb.orgreferenceintrogetting-started.-create-an-account-to-authenticate" class="level4">
+<h4 class="anchored" data-anchor-id="browse-the-documentation-at-httpsdeveloper.themoviedb.orgreferenceintrogetting-started.-create-an-account-to-authenticate">Browse the documentation at https://developer.themoviedb.org/reference/intro/getting-started. Create an account to authenticate</h4>
+<div id="cell-19" class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#create a dataset of the movies in theaters now. Include metadata fields you are interested in. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-20" class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#download the movie posters for 10 of these movies and save them to this repository</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
